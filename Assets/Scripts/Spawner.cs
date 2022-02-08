@@ -18,12 +18,14 @@ public class Spawner : MonoBehaviour
 
     public TextMeshProUGUI avgSpeed;
     public TextMeshProUGUI avgSense;
+    public TextMeshProUGUI avgSize;
 
     public int day = 1;
 
     void Start(){
         ReproduceCounter.totalSpeed = 7 * agentCount;
         ReproduceCounter.totalSense = 7 * agentCount;
+        ReproduceCounter.totalSize = 2 * agentCount;
         for (int i = 0; i < foodCount; i++){
             Transform point = Instantiate(foodPrefab, new Vector3(Random.Range(-38.0f, 38.0f), 0.5f, Random.Range(-38.0f, 38.0f)), Quaternion.identity);  
         }
@@ -45,6 +47,7 @@ public class Spawner : MonoBehaviour
     void Update(){
         avgSpeed.text = "Average Speed: " + Mathf.Round((ReproduceCounter.totalSpeed / ReproduceCounter.divideBy) * 1000f) / 1000f;
         avgSense.text = "Average Sense: " + Mathf.Round((ReproduceCounter.totalSense / ReproduceCounter.divideBy) * 1000f) / 1000f;
+        avgSize.text = "Average Size: " + Mathf.Round((ReproduceCounter.totalSize / ReproduceCounter.divideBy) * 1000f) / 1000f;
         dayText.text = "Day " + day;
         if (ReproduceCounter.counter == 0){
             ReproduceCounter.reproduceGo = true;

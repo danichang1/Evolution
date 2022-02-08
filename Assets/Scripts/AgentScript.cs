@@ -17,7 +17,7 @@ public class AgentScript : MonoBehaviour {
     public float energy;
     public float sense;
     public float speed;
-    public static float size;
+    public float size;
     private float energyTimer;
     private bool childSet;
     private bool meSet;
@@ -46,7 +46,7 @@ public class AgentScript : MonoBehaviour {
         radius = 10;
         sense = 7;
         speed = 7;
-        size = 4;
+        size = 2;
         agent = this.GetComponent<NavMeshAgent>();
         agent.speed = speed;
         newDestination();
@@ -59,7 +59,7 @@ public class AgentScript : MonoBehaviour {
         energyTimer = energyTimer + Time.deltaTime;
         if (energyTimer >= 1 && atHome == false && active == true){
             //energy going down
-            energy = energy - (agent.speed * agent.speed + sense) / 10;
+            energy = energy - (agent.speed * agent.speed + sense + size) / 10;
             energyTimer = 0;
         }
 
@@ -69,6 +69,7 @@ public class AgentScript : MonoBehaviour {
             ReproduceCounter.divideBy--;
             ReproduceCounter.totalSpeed = ReproduceCounter.totalSpeed - agent.speed;
             ReproduceCounter.totalSense = ReproduceCounter.totalSense - sense;
+            ReproduceCounter.totalSize = ReproduceCounter.totalSize - size;
             Destroy(this.gameObject);
             
             
@@ -141,10 +142,12 @@ public class AgentScript : MonoBehaviour {
             childSet = true;
             speedChange = Random.Range(.7f, 1.3f);
             senseChange = Random.Range(.7f, 1.3f);
+            sizeChange = Random.Range(.8f, 1.2f);
             reproduce = false;
             ReproduceCounter.divideBy--;
             ReproduceCounter.totalSpeed = ReproduceCounter.totalSpeed + agent.speed * speedChange;
             ReproduceCounter.totalSense = ReproduceCounter.totalSense + sense * senseChange;
+            ReproduceCounter.totalSize = ReproduceCounter.totalSize + size * sizeChange;
         } else if (atHome == true && foodCount == 1 && reproduce == true && ReproduceCounter.reproduceGo == true){
             //go back out
             me = Instantiate(agentPrefab, this.transform.position, Quaternion.identity);
@@ -158,6 +161,7 @@ public class AgentScript : MonoBehaviour {
         if (childSet == true && child != null){
             child.gameObject.GetComponent<AgentScript>().agent.speed = agent.speed * speedChange;
             child.gameObject.GetComponent<AgentScript>().sense = sense * senseChange;
+            child.gameObject.GetComponent<AgentScript>().size = size * sizeChange;
             Renderer mesh = this.GetComponent<MeshRenderer>();
             agent.enabled = false;
             mesh.enabled = false;
@@ -168,6 +172,7 @@ public class AgentScript : MonoBehaviour {
         if (meSet == true && me != null){
             me.gameObject.GetComponent<AgentScript>().agent.speed = agent.speed;
             me.gameObject.GetComponent<AgentScript>().sense = sense;
+            me.gameObject.GetComponent<AgentScript>().size = size;
             Renderer mesh = this.GetComponent<MeshRenderer>();
             agent.enabled = false;
             mesh.enabled = false;

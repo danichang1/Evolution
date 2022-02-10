@@ -10,6 +10,9 @@ TagManager:
   - South
   - East
   - West
+  - Edible
+  - Eater
+  - Safe
   layers:
   - Default
   - TransparentFX

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using System.Linq;
 
 public class AgentScript : MonoBehaviour {
 
@@ -32,6 +33,7 @@ public class AgentScript : MonoBehaviour {
     Transform agentPrefab;
 
 
+
     void Start(){
         active = true;
         childSet = false;
@@ -55,11 +57,17 @@ public class AgentScript : MonoBehaviour {
     }
 
     void Update(){
+        Debug.Log(ReproduceCounter.counter);
+        if (size < 2){
+            gameObject.tag = "Edible";
+        } else if (size > 2.2){
+            gameObject.tag = "Eater";
+        } 
         this.transform.localScale = new Vector3(size, size, size);
         energyTimer = energyTimer + Time.deltaTime;
         if (energyTimer >= 1 && atHome == false && active == true){
             //energy going down
-            energy = energy - (agent.speed * agent.speed + sense + size) / 10;
+            energy = energy - (agent.speed * agent.speed + sense + (3 * size)) / 10;
             energyTimer = 0;
         }
 
@@ -73,7 +81,7 @@ public class AgentScript : MonoBehaviour {
             Destroy(this.gameObject);
             
             
-        } else if ((foodCount >= 2 && active == true) || ((foodCount == 1 && energy <= 7) && active == true)){
+        } else if ((foodCount >= 2 && active == true) || ((foodCount == 1 && energy <= 20) && active == true)){
             //go home
             GameObject[] homeList;
             homeList = GameObject.FindGameObjectsWithTag("Home");
@@ -98,10 +106,16 @@ public class AgentScript : MonoBehaviour {
             agent.SetDestination(homePos);
             
         } else{
-            if (Vector3.Distance (this.transform.position, newPos) <= 2.9 && active == true){
+            if (Vector3.Distance (this.transform.position, newPos) <= (1.4 * size) && active == true){
                 //look for food
                 GameObject[] foodList;
-                foodList = GameObject.FindGameObjectsWithTag("Food");
+                if (this.gameObject.tag == "Eater"){
+                    GameObject[] list1 = GameObject.FindGameObjectsWithTag("Food");
+                    GameObject[] list2 = GameObject.FindGameObjectsWithTag("Edible");
+                    foodList = list1.Concat(list2).ToArray();
+                } else {
+                    foodList = GameObject.FindGameObjectsWithTag("Food");
+                }
                 float distance = Mathf.Infinity;
                 GameObject closest = null;
                 
@@ -126,6 +140,7 @@ public class AgentScript : MonoBehaviour {
 
         if (Vector3.Distance (this.transform.position, homePos) <= 2.1){
             atHome = true;
+            this.gameObject.tag = "Safe";
             
         }
 
@@ -140,8 +155,8 @@ public class AgentScript : MonoBehaviour {
             meSet = true;
             child = Instantiate(agentPrefab, this.transform.position, Quaternion.identity);
             childSet = true;
-            speedChange = Random.Range(.7f, 1.3f);
-            senseChange = Random.Range(.7f, 1.3f);
+            speedChange = Random.Range(.8f, 1.2f);
+            senseChange = Random.Range(.8f, 1.2f);
             sizeChange = Random.Range(.8f, 1.2f);
             reproduce = false;
             ReproduceCounter.divideBy--;
@@ -188,6 +203,17 @@ public class AgentScript : MonoBehaviour {
     void OnTriggerEnter(Collider other){
         //eat
         if(other.gameObject.CompareTag("Food")){
+            Destroy(other.gameObject);
+            foodCount++;
+        } else if(this.gameObject.tag == "Eater" && other.gameObject.CompareTag("Edible")){
+            ReproduceCounter.counter--;
+            ReproduceCounter.divideBy--;
+            var otherSpeed = other.GetComponent<AgentScript>().agent.speed;
+            var otherSense = other.GetComponent<AgentScript>().sense;
+            var otherSize = other.GetComponent<AgentScript>().size;
+            ReproduceCounter.totalSpeed = ReproduceCounter.totalSpeed - otherSpeed;
+            ReproduceCounter.totalSense = ReproduceCounter.totalSense - otherSense;
+            ReproduceCounter.totalSize = ReproduceCounter.totalSize - otherSize;
             Destroy(other.gameObject);
             foodCount++;
         }

@@ -106,7 +106,7 @@ public class AgentScript : MonoBehaviour {
             agent.SetDestination(homePos);
             
         } else{
-            if (Vector3.Distance (this.transform.position, newPos) <= (1.4 * size) && active == true){
+            if (Vector3.Distance (this.transform.position, newPos) <= (1.2 * size) && active == true){
                 //look for food
                 GameObject[] foodList;
                 if (this.gameObject.tag == "Eater"){
@@ -205,7 +205,7 @@ public class AgentScript : MonoBehaviour {
         if(other.gameObject.CompareTag("Food")){
             Destroy(other.gameObject);
             foodCount++;
-        } else if(this.gameObject.tag == "Eater" && other.gameObject.CompareTag("Edible")){
+        } else if(this.gameObject.tag == "Eater" && other.gameObject.CompareTag("Edible") && atHome == false){
             ReproduceCounter.counter--;
             ReproduceCounter.divideBy--;
             var otherSpeed = other.GetComponent<AgentScript>().agent.speed;
